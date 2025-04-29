@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>COTIZADOR DE EVENTOS</title>
+    <link rel="stylesheet" href="estilo.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.25/jspdf.plugin.autotable.min.js"></script>
+    <script src="https://cdn.sheetjs.com/xlsx-0.20.0/package/xlsx.full.min.js"></script>
+
+</head>
+<body>
+    <h1>COTIZADOR DE EVENTOS</h1>
+    <div>
+        <label>Nombre del Evento:</label>
+        <input type="text" id="evento" required style="width: 100%;" oninput="this.value = this.value.toUpperCase()">
+    </div>
+    <div>
+        <label>Nombre del Solicitante:</label>
+        <input type="text" id="nombreSolicitante" required style="width: 100%;" oninput="this.value = this.value.toUpperCase()">
+    </div>
+    <div>
+        <label>Fecha de Cotización:</label>
+        <input type="date" id="fechaCotizacion" required>
+      </div>
+      
+      <div>
+        <label>Fecha del Evento:</label>
+        <input type="date" id="fechaEvento" required>
+      </div>
+      <div>
+        <label>Fecha de Termino:</label>
+        <input type="date" id="fechaTermino" required>
+      </div>
+      <div class="area-group">
+        <label>Área Solicitante:</label>
+        <select id="areaSolicitante" onchange="mostrarCamposArea()" required>
+            <option value="">Elige una area</option>
+            <option value="DIRECCION_GENERAL_DE_GOBIERNO_Y_ASUNTOS_JURIDICOS">DIRECCION GENERAL DE GOBIERNO Y ASUNTOS JURIDICOS</option>
+            <option value="DIRECCION_GENERAL_DE_ADMINISTRACION">DIRECCION GENERAL DE ADMINISTRACION</option>
+            <option value="DIRECCION_GENERAL_DE_SERVICIOS_URBANOS">DIRECCION GENERAL DE SERVICIOS URBANOS</option>
+            <option value="DIRECCION_GENERAL_DE_OBRAS_Y_DESARROLLO_URBANO">DIRECCION GENERAL DE OBRAS Y DESARROLLO URBANO</option>
+            <option value="DIRECCION_GENERAL_DE_DESARROLLO_SOCIAL_Y_BIENESTAR">DIRECCION GENERAL DE DESARROLLO SOCIAL Y BIENESTAR</option>
+            <option value="DIRECCION_GENERAL_DE_DESARROLLO_ECONOMICO_Y_RURAL">DIRECCION GENERAL DE DESARROLLO ECONOMICO Y RURAL</option>
+            <option value="DIRECCION_GENERAL_DE_PARTICIPACION_CIUDADANA">DIRECCION GENERAL DE PARTICIPACION CIUDADANA</option>
+            <option value="DIRECCION_SEGURIDAD_CIUDADANA">DIRECCION SEGURIDAD CIUDADANA</option>
+        </select>
+        <div id="camposAreaEspecifica"></div>
+    </div>
+
+
+    
+    <div class="concepto-group">
+        <label>Tipo de Concepto:</label>
+        <select id="tipoConcepto" onchange="mostrarCamposConcepto()">
+            <option value="">Elige una opcion</option>
+            <option value="LONAS">Lonas (m²) </option>
+            <option value="CARPAS">Carpas (m²) </option>
+            <option value="TEMPLETES">Templetes(m²)  </option>
+            <option value="TARIMAS">Tarimas(m²)   </option>
+            <option value="MANAPARAS">Mamparas (pieza) </option>
+            <option value="SILLAS_PLASTICAS_PLEGADIZAS">Sillas platicas plegadizas(pieza)</option>
+            <option value="SILLAS_PLASTICAS_ACOJINADAS">Sillas platicas acojinadas(pieza)</option>
+            <option value="SILLAS_DE_VISTA_ISO_ACOJINADAS_EN_PLIANA">Sillas de vista iso acojinadas en pliana(pieza)</option>
+            <option value="TABLONES">Tablones (pieza)</option>
+            <option value="MANTELES_PARA_TABLON">Manteles para tablon (pieza) </option>
+            <option value="PAÑOS_DE_DIFERENTES_COLORES">Paños de diferentes colores (pieza) </option>
+            <option value="MESA_REDONDA">Mesa redonda (pieza) </option>
+            <option value="MANTELES_PARA_MESAS_REDONDAS">Manteles para mesas  redondas (pieza) </option>
+            <option value="CUBRE_MANTELES_DE_DIFERENTES_COLORES">Cubre manteles de diferentes colores (pieza) </option>
+            <option value="CINTAS_PARA_MOÑOS_DE_DIFERENTE_COLOR">Cintas para Moños de diferente color (pieza) </option>
+            <option value="FUNDA_FRANCESA_PARA_SILLAS_DE_DIFERENTES_COLORES">Fundas francesas para sillas de diferentes colores  </option>
+            <option value="SALA_LOUNGE">Sala lounge (juego) </option>
+            <option value="MEGA_DOMO">Mega domo (m²) </option>
+            <option value="SANITARIOS_PORTÁTILES">Sanitarios portátiles (pieza) </option>
+            <option value="RENTA_E_INSTALACIÓN_DE_PASARELA">Renta e instalación de pasarela (m²) </option>
+        </select>
+    
+    </div>
+    <div>
+        <label>Días de duración del Evento:</label>
+        <input type="number" id="duracion" min="1" value="1" required>
+    </div>
+    
+    <!-- Campos específicos para cada tipo de concepto -->
+     <!-- Campos específicos para cada tipo de concepto -->
+     <div id="camposConcepto"></div>
+    
+     <button onclick="agregarConcepto()">Agregar</button>
+     <button onclick="borrarDatos()">Borrar</button>
+     
+    
+    <table>
+        <thead>
+            <tr>
+                <th>CONCEPTO</th>
+                <th>CANTIDAD</th>
+                <th>PRECIO UNITARIO</th>
+                <th>DURACION DEL EVENTO</th>
+                <th>TOTAL</th>
+            </tr>
+        </thead>
+       
+        <tbody id="tablaConceptos">
+            <!-- Los conceptos se agregarán aquí -->
+        </tbody>
+       
+    </table>
+    
+    <div>
+        <label>Observaciones:</label>
+        <textarea id="observaciones" rows="4" placeholder="" style="width: 100%; text-transform: uppercase;"></textarea>
+    </div>
+    
+    <script>
+        document.getElementById('observaciones').addEventListener('input', function() {
+            this.value = this.value.toUpperCase();
+        });
+    </script>
+    
+    <div id="total" style="font-weight: bold; font-size: 1.2em;">TOTAL: $0.00</div>
+    
+   
+    
+   
+    <button onclick="exportarExcel()">Exportar a Excel</button>
+    <button onclick="exportarPDF()">Exportar  a PDF</button>
+    
+  <script src="script.js"></script>
+
+</body>
+</html>
